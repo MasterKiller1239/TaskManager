@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using TaskManager.Client.Export;
 using TaskManager.Client.Models;
 
 using TaskManager.Client.Utilities;
@@ -21,7 +22,9 @@ namespace TaskManager.Client.ViewModels
         public ICommand AddTaskCommand { get; }
         public ICommand DeleteTaskCommand { get; }
         public ICommand ToggleTaskCompletedCommand { get; }
-
+        public ICommand ExportToJsonCommand { get; }
+        public ICommand ExportToXmlCommand { get; }
+        public ICommand ExportToPdfCommand { get; }
         private TaskItem? _selectedTask;
         public TaskItem? SelectedTask
         {
@@ -39,6 +42,9 @@ namespace TaskManager.Client.ViewModels
             AddTaskCommand = new RelayCommand(async _ => await AddTask());
             DeleteTaskCommand = new RelayCommand(async _ => await DeleteTask(), _ => SelectedTask != null);
             ToggleTaskCompletedCommand = new RelayCommand(async _ => await ToggleCompleted(), _ => SelectedTask != null);
+            ExportToJsonCommand = new RelayCommand(_ => ExportTasks(new JsonExporter()));
+            ExportToXmlCommand = new RelayCommand(_ => ExportTasks(new XmlExporter()));
+            ExportToPdfCommand = new RelayCommand(_ => ExportTasks(new PdfExporter()));
         }
 
         private async Task LoadTasks()
@@ -85,6 +91,10 @@ namespace TaskManager.Client.ViewModels
             {
                 await LoadTasks();
             }
+        }
+        private void ExportTasks(IExportStrategy exporter)
+        {
+            exporter.Export(Tasks);
         }
     }
 }

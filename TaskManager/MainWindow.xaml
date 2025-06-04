@@ -14,7 +14,11 @@
     </Window.DataContext>
     <Window.Resources>
         <converters:BoolToBrushConverter x:Key="BoolToBrushConverter" />
+        <converters:IntToBoolConverter x:Key="IntToBoolConverter" />
+        <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter" />
+
     </Window.Resources>
+    
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -26,6 +30,23 @@
             <TextBox Width="300" Margin="0 0 10 0" Text="{Binding NewTaskTitle, UpdateSourceTrigger=PropertyChanged}"/>
             <Button Content="Add Task" Command="{Binding AddTaskCommand}"/>
             <Button Content="Load Tasks" Command="{Binding LoadTasksCommand}" Margin="10 0 0 0"/>
+            <Button Content="Export to JSON"
+            Margin="5"
+            Width="120"
+            Command="{Binding ExportToJsonCommand}"
+            IsEnabled="{Binding Tasks.Count, Converter={StaticResource IntToBoolConverter}}" />
+
+            <Button Content="Export to XML"
+            Margin="5"
+            Width="120"
+            Command="{Binding ExportToXmlCommand}"
+            IsEnabled="{Binding Tasks.Count, Converter={StaticResource IntToBoolConverter}}" />
+
+            <Button Content="Export to PDF"
+            Margin="5"
+            Width="120"
+            Command="{Binding ExportToPdfCommand}"
+            IsEnabled="{Binding Tasks.Count, Converter={StaticResource IntToBoolConverter}}" />
         </StackPanel>
 
         <!-- Task List -->
