@@ -47,4 +47,5 @@ RelayCommand for command binding
 HttpClient for API communication
 
 XAML styling
+
 ![image](https://github.com/user-attachments/assets/17b4b1ed-3c40-469d-947d-325400592513)
