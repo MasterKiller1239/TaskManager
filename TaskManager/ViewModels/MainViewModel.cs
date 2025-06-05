@@ -35,7 +35,7 @@ namespace TaskManager.Client.ViewModels
                 OnPropertyChanged();
             }
         }
-
+   
         public MainViewModel()
         {
             LoadTasksCommand = new RelayCommand(async _ => await LoadTasks());
@@ -46,7 +46,17 @@ namespace TaskManager.Client.ViewModels
             ExportToXmlCommand = new RelayCommand(_ => ExportTasks(new XmlExporter()));
             ExportToPdfCommand = new RelayCommand(_ => ExportTasks(new PdfExporter()));
         }
-
+        public MainViewModel(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+            LoadTasksCommand = new RelayCommand(async _ => await LoadTasks());
+            AddTaskCommand = new RelayCommand(async _ => await AddTask());
+            DeleteTaskCommand = new RelayCommand(async _ => await DeleteTask(), _ => SelectedTask != null);
+            ToggleTaskCompletedCommand = new RelayCommand(async _ => await ToggleCompleted(), _ => SelectedTask != null);
+            ExportToJsonCommand = new RelayCommand(_ => ExportTasks(new JsonExporter()));
+            ExportToXmlCommand = new RelayCommand(_ => ExportTasks(new XmlExporter()));
+            ExportToPdfCommand = new RelayCommand(_ => ExportTasks(new PdfExporter()));
+        }
         private async Task LoadTasks()
         {
             var tasks = await _httpClient.GetFromJsonAsync<TaskItem[]>("tasks");
