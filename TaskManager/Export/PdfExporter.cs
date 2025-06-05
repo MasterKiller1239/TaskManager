@@ -29,7 +29,9 @@ namespace TaskManager.Client.Export
 
                 // Tworzenie dokumentu MigraDoc
                 Document document = new Document();
-
+                document.Info.Title = "Task List PDF";
+                Style style = document.Styles["Normal"];
+                style.Font.Name = "Arial";
                 // Sekcja dokumentu
                 Section section = document.AddSection();
 
