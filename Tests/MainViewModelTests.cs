@@ -116,5 +116,86 @@ namespace TaskManager.Tests
             Assert.Equal("Task 2", viewModel.Tasks.Last().Title);
             Assert.True(viewModel.Tasks.Last().IsCompleted);
         }
+        [Fact]
+        public async Task DeleteTask_ShouldRemoveSelectedTask()
+        {
+            // Arrange
+            var taskList = new[]
+            {
+        new TaskItem { Id = 1, Title = "Task 1", IsCompleted = false }
+    };
+
+            var handler = new MockHttpMessageHandler(req =>
+            {
+                if (req.Method == HttpMethod.Delete)
+                {
+                    return new HttpResponseMessage(HttpStatusCode.OK); 
+                }
+                else if (req.Method == HttpMethod.Get)
+                {
+                    var json = JsonSerializer.Serialize(Array.Empty<TaskItem>()); 
+                    return new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+                    };
+                }
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            });
+
+            var httpClient = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:5000/api/") };
+            var viewModel = new MainViewModel(httpClient);
+
+            // Dodaj zadanie i ustaw jako wybrane
+            viewModel.Tasks.Add(taskList[0]);
+            viewModel.SelectedTask = taskList[0];
+
+            // Act
+            var method = viewModel.GetType().GetMethod("DeleteTask", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            await (Task)method.Invoke(viewModel, null);
+
+            // Assert
+            Assert.Empty(viewModel.Tasks); 
+        }
+
+        [Fact]
+        public async Task ToggleTaskCompleted_ShouldToggleIsCompletedFlag()
+        {
+            // Arrange
+            var task = new TaskItem { Id = 1, Title = "Task 1", IsCompleted = false };
+
+            var handler = new MockHttpMessageHandler(req =>
+            {
+                if (req.Method == HttpMethod.Put)
+                {
+                    return new HttpResponseMessage(HttpStatusCode.OK); 
+                }
+                else if (req.Method == HttpMethod.Get)
+                {
+                    var updatedTask = new[] { new TaskItem { Id = 1, Title = "Task 1", IsCompleted = true } };
+                    var json = JsonSerializer.Serialize(updatedTask);
+                    return new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+                    };
+                }
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            });
+
+            var httpClient = new HttpClient(handler) { BaseAddress = new Uri("http://localhost:5000/api/") };
+            var viewModel = new MainViewModel(httpClient);
+
+            viewModel.Tasks.Add(task);
+            viewModel.SelectedTask = task;
+
+            // Act
+            var method = viewModel.GetType().GetMethod("ToggleCompleted", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            await (Task)method.Invoke(viewModel, null);
+
+            // Assert
+            Assert.Single(viewModel.Tasks);
+            Assert.True(viewModel.Tasks[0].IsCompleted); 
+        }
+
     }
+
 }
