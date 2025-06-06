@@ -61,9 +61,19 @@ namespace TaskManager.Client.ViewModels
                 OnPropertyChanged();
             }
         }
-   
+        private string _motivationalQuote;
+        public string MotivationalQuote
+        {
+            get => _motivationalQuote;
+            set
+            {
+                _motivationalQuote = value;
+                OnPropertyChanged();
+            }
+        }
         public MainViewModel()
         {
+            
             LoadTasksCommand = new RelayCommand(async _ => await LoadTasks());
             AddTaskCommand = new RelayCommand(async _ => await AddTask());
             DeleteTaskCommand = new RelayCommand(async _ => await DeleteTask(), _ => SelectedTask != null);
@@ -93,6 +103,7 @@ namespace TaskManager.Client.ViewModels
                     Tasks.Add(t);
             }
             ApplyFilterAndSort();
+            await LoadMotivationalQuote();
 
         }
         private async Task AddTask()
@@ -156,6 +167,21 @@ namespace TaskManager.Client.ViewModels
             foreach (var task in filtered)
                 FilteredTasks.Add(task);
         }
-
+        private async Task LoadMotivationalQuote()
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<QuoteResponse>>("https://zenquotes.io/api/random");
+                if (response != null && response.Count > 0)
+                {
+                    var quote = response[0];
+                    MotivationalQuote = $"\"{quote.q}\" — {quote.a}";
+                }
+            }
+            catch
+            {
+                MotivationalQuote = "Could not load quote.";
+            }
+        }
     }
 }
