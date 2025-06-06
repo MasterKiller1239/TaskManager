@@ -26,6 +26,32 @@ namespace TaskManager.Client.ViewModels
         public ICommand ExportToXmlCommand { get; }
         public ICommand ExportToPdfCommand { get; }
         private TaskItem? _selectedTask;
+        public ObservableCollection<TaskItem> FilteredTasks { get; } = new();
+
+        private string _statusFilter = "All"; // "All", "Completed", "Pending"
+        public string StatusFilter
+        {
+            get => _statusFilter;
+            set
+            {
+                _statusFilter = value;
+                OnPropertyChanged();
+                ApplyFilterAndSort();
+            }
+        }
+
+        private string _sortOption = "None"; // "None", "Title", "Id"
+        public string SortOption
+        {
+            get => _sortOption;
+            set
+            {
+                _sortOption = value;
+                OnPropertyChanged();
+                ApplyFilterAndSort();
+            }
+        }
+
         public TaskItem? SelectedTask
         {
             get => _selectedTask;
@@ -66,6 +92,8 @@ namespace TaskManager.Client.ViewModels
                 foreach (var t in tasks)
                     Tasks.Add(t);
             }
+            ApplyFilterAndSort();
+
         }
         private async Task AddTask()
         {
@@ -78,7 +106,9 @@ namespace TaskManager.Client.ViewModels
                 await LoadTasks();
                 NewTaskTitle = string.Empty;
                 OnPropertyChanged(nameof(NewTaskTitle));
+                ApplyFilterAndSort();
             }
+
         }
 
         private async Task DeleteTask()
@@ -106,5 +136,26 @@ namespace TaskManager.Client.ViewModels
         {
             exporter.Export(Tasks);
         }
+        private void ApplyFilterAndSort()
+        {
+            var filtered = Tasks.AsEnumerable();
+
+            // Filtering
+            if (StatusFilter == "Completed")
+                filtered = filtered.Where(t => t.IsCompleted).ToList();
+            else if (StatusFilter == "Pending")
+                filtered = filtered.Where(t => !t.IsCompleted).ToList();
+
+            // Sorting
+            if (SortOption == "Title")
+                filtered = filtered.OrderBy(t => t.Title).ToList();
+            else if (SortOption == "Id")
+                filtered = filtered.OrderBy(t => t.Id).ToList();
+
+            FilteredTasks.Clear();
+            foreach (var task in filtered)
+                FilteredTasks.Add(task);
+        }
+
     }
 }

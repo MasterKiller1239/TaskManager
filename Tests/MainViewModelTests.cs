@@ -195,6 +195,18 @@ namespace TaskManager.Tests
             Assert.Single(viewModel.Tasks);
             Assert.True(viewModel.Tasks[0].IsCompleted); 
         }
+        [Fact]
+        public void ApplyFilterAndSort_ShouldFilterCompletedTasks()
+        {
+            var viewModel = new MainViewModel();
+            viewModel.Tasks.Add(new TaskItem { Id = 1, Title = "A", IsCompleted = true });
+            viewModel.Tasks.Add(new TaskItem { Id = 2, Title = "B", IsCompleted = false });
+
+            viewModel.StatusFilter = "Completed";
+
+            Assert.Single(viewModel.FilteredTasks);
+            Assert.True(viewModel.FilteredTasks[0].IsCompleted);
+        }
 
     }
 
