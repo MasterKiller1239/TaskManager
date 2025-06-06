@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using TaskManager.Client.Export;
 using TaskManager.Client.Models;
